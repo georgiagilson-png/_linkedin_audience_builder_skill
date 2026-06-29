@@ -123,35 +123,40 @@ Structure criteria as AND across facets, OR within a facet:
 
 Each AND block contains exactly one facet with its OR list of URNs.
 
-## Step 3: POST to the LinkedIn Ads API
+## Step 3: Apply targeting or output for manual entry
 
-Use the credentials stored in environment variables (see Configuration below).
+> **API limitation:** LinkedIn's "Saved Audiences" (Plan > Audiences in Campaign Manager) does **not** have a public API endpoint. This is a confirmed gap -- even with `rw_ads` scope, there is no `POST /savedAudiences` or equivalent endpoint available in LinkedIn's public Marketing API.
 
+**Two options depending on user need:**
+
+**Option A -- Apply directly to a campaign (API-supported):**
 ```bash
-curl -s -X POST "https://api.linkedin.com/v2/savedAudiences" \
+curl -s -X POST "https://api.linkedin.com/v2/adCampaignsV2" \
   -H "Authorization: Bearer $LINKEDIN_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -H "X-Restli-Protocol-Version: 2.0.0" \
   -d '{
     "account": "urn:li:sponsoredAccount:ACCOUNT_ID",
-    "name": "AUDIENCE_NAME",
+    "name": "CAMPAIGN_NAME",
+    "status": "DRAFT",
+    "type": "SPONSORED_UPDATES",
+    "costType": "CPM",
     "targetingCriteria": { ... }
   }'
 ```
 
-Replace `ACCOUNT_ID` with the numeric ID from the account table above and `AUDIENCE_NAME` with the user's chosen name.
+**Option B -- Output for manual entry in Campaign Manager:**
+Present the full resolved criteria list (display names + URNs grouped by facet) so the user can paste them into Campaign Manager under Plan > Audiences > Create audience > Saved audience.
 
-## Step 4: Confirm and report back
+## Step 4: Report back
 
-A successful response returns HTTP 201 with the new audience ID in the `id` field. Report back:
-- Audience name
-- Account it was saved to
-- LinkedIn audience ID
-- How many values were included per facet
-- Any criteria that could not be resolved to a URN (skipped)
-- A reminder that it can now be found in Campaign Manager under Plan > Audiences > Saved Audiences
+Report:
+- Full resolved targeting criteria, grouped by facet with display names
+- Count of values per facet
+- Any criteria that could not be resolved (skipped)
+- Whether targeting was applied to a campaign (Option A) or output for manual entry (Option B)
 
-If the API returns an error, show the full error message and suggest checking token expiry (token expires 2026-08-17) or account permissions.
+If an API call returns an error, show the full error message and suggest checking token expiry (expires 2026-08-17) or account permissions.
 
 ## Configuration
 
