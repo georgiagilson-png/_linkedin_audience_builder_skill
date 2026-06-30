@@ -20,7 +20,8 @@ Before building the audience, confirm you have:
 
 1. **Audience name** -- what to call it in Campaign Manager
 2. **Ad account** -- which account to save it to (see account list below)
-3. **Targeting criteria** -- any combination of:
+3. **Location targeting** -- always ask which countries, regions, or cities to target (Profile Location and/or IP Location). Do not proceed without this.
+4. **Targeting criteria** -- any combination of:
    - Job Titles (current)
    - Member Skills
    - Job Seniorities
@@ -123,7 +124,51 @@ Structure criteria as AND across facets, OR within a facet:
 
 Each AND block contains exactly one facet with its OR list of URNs.
 
-## Step 3: Apply targeting or output for manual entry
+## Step 3: Confirm all criteria with the user before implementing
+
+Before making any API calls, present a full summary of every resolved value grouped by facet, and ask the user to confirm. Format it clearly, for example:
+
+---
+**Please review and confirm the following targeting before I create the campaign:**
+
+**Job Titles (41)**
+- Chief Technology Officer (urn:li:title:153)
+- VP of Engineering (urn:li:title:68)
+- ...
+
+**Member Skills (99)**
+- Python (urn:li:skill:1184)
+- ...
+
+**Seniorities**
+- Director, VP, CXO, Owner, Partner
+
+**Job Functions**
+- Information Technology, Engineering
+
+**Industries**
+- Computer Software, IT Services, Computer Networking
+
+**Locations**
+- United Kingdom (urn:li:geo:101165590)
+
+**Years of Experience**
+- 5 years, 6 years, ... *(note any API limits)*
+
+**Age Ranges**
+- 35-54, 55+
+
+**Campaign name:** Agent Fleet | Retargeting | C
+**Account:** Acuity Analytics
+**Campaign Group:** Agent Fleet
+
+Shall I proceed?
+
+---
+
+Do not call the API until the user confirms. If they request any changes, update the criteria and show the summary again.
+
+## Step 4: Apply targeting or output for manual entry
 
 > **API limitation:** LinkedIn's "Saved Audiences" (Plan > Audiences in Campaign Manager) does **not** have a public API endpoint. This is a confirmed gap -- even with `rw_ads` scope, there is no `POST /savedAudiences` or equivalent endpoint available in LinkedIn's public Marketing API.
 
@@ -148,7 +193,7 @@ curl -s -X POST "https://api.linkedin.com/v2/adCampaignsV2" \
 **Option B -- Output for manual entry in Campaign Manager:**
 Present the full resolved criteria list (display names + URNs grouped by facet) so the user can paste them into Campaign Manager under Plan > Audiences > Create audience > Saved audience.
 
-## Step 4: Report back
+## Step 5: Report back
 
 Report:
 - Full resolved targeting criteria, grouped by facet with display names
