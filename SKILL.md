@@ -220,3 +220,13 @@ The token expires **2026-08-17**. If it has expired, a new one must be generated
 - Age targeting requires the user to certify they will not use it to discriminate -- confirm this with the user before including age criteria
 - Company list / TAL (matched audience segments) require a pre-uploaded segment URN -- only include these if the user explicitly provides a segment name or URN
 - Maximum 100 values per skill facet; other facets have no hard limit but LinkedIn recommends keeping total criteria reasonable
+
+## Known API limitations -- always flag these as manual steps
+
+These criteria are silently dropped or blocked by the LinkedIn Ads API and must be added manually in Campaign Manager after the campaign is created:
+
+1. **All audience exclusions** (companies, industries, titles, skills, etc.) -- The `exclude` block in `targetingCriteria` is accepted at creation but silently not saved. PATCH is also blocked with a 403. Always flag every exclusion as a manual step.
+2. **Years of Experience with more than 2 values** -- The `yearsOfExperienceRanges` facet rejects 3+ values. If the user needs a range (e.g. 4+ years), omit it from the API call and flag it as manual.
+3. **Matched audience exclusions (TAL / company lists)** -- No public API endpoint exists to look up or apply matched audience segments. Always flag these as manual.
+
+In Step 5 (report back), always include a clearly labelled "Manual steps required in Campaign Manager" section listing every item that could not be applied via the API.
